@@ -1,0 +1,9 @@
+@import "tailwindcss";
+@tailwind utilities;
+
+.volume-slider {
+    writing-mode: bt-lr; /* bottom to top, vertical */
+    transform: rotate(270deg);
+    width: 100px;
+    height: 20px;
+  }

@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Creator Section -->
+<section class="px-6 py-8">
+    <div class="container mx-auto">
+        <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+            <!-- Left: Create Song -->
+            <div class="p-6 bg-gray-800 rounded-lg shadow-md">
+                <h3 class="mb-4 text-xl font-bold text-white">Upload a New Song</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label for="songNameIpt" class="block mb-2 text-sm font-medium text-white">Song</label>
+                        <input type="text" id="songNameIpt" placeholder="Song Title" class="block w-full p-2.5 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-sky-400 focus:border-sky-400">
+                    </div>
+                    <div>
+                        <label for="artistNameIpt" class="block mb-2 text-sm font-medium text-white">Artist</label>
+                        <input type="text" id="artistNameIpt" placeholder="Artist's name" class="block w-full p-2.5 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-sky-400 focus:border-sky-400">
+                    </div>
+                    <div>
+                        <label for="songFileIpt" class="block mb-2 text-sm font-medium text-white">Audio File</label>
+                        <input type="file" id="songFileIpt" accept=".mp3" class="block w-full text-sm text-gray-400 border border-gray-600 rounded-lg cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-sky-400 file:text-white hover:file:bg-sky-600">
+                    </div>
+                    <button id="createSongBtn" onclick="createSong()" class="w-full px-5 py-3 font-medium text-center text-white bg-sky-400 rounded-lg hover:bg-sky-600  focus:ring-4 focus:outline-none focus:ring-purple-800">
+                        Upload Song
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right: Create Playlist -->
+            <div class="p-6 bg-gray-800 rounded-lg shadow-md">
+                <h3 class="mb-4 text-xl font-bold text-white">Create a New Playlist</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label for="playlistNameIpt" class="block mb-2 text-sm font-medium text-white">Playlist</label>
+                        <input type="text" id="playlistNameIpt" placeholder="Playlist Name" class="block w-full p-2.5 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-sky-400 focus:border-sky-400">
+                    </div>
+                    <button id="createPlaylistBtn" onclick="createPlaylist()" class="w-full px-5 py-3 font-medium text-center text-white bg-sky-400 rounded-lg hover:bg-sky-600 focus:ring-4 focus:outline-none focus:ring-purple-800">
+                        Create Playlist
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Your Uploaded Songs Section -->
+<section class="px-6 py-8">
+    <div class="container mx-auto">
+        <h3 class="mb-6 text-xl font-bold text-white">Your Uploaded Songs</h3>
+        <div class="overflow-x-auto bg-gray-800 rounded-lg shadow-md">
+            <div class="min-w-full align-middle">
+                <!-- Header -->
+                <div class="grid grid-cols-12 gap-4 px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-400 uppercase">
+                    <div class="col-span-4">Song Title</div>
+                    <div class="col-span-3">Artist</div>
+                    <div class="col-span-3">Audio File</div>
+                    <div class="col-span-2 text-right">Actions</div>
+                </div>
+                <!-- Body -->
+                <div id="user_songs" class="divide-y divide-gray-700 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+                    {% for song in user_songs %}
+                    <article class="song grid items-center grid-cols-12 gap-4 px-6 py-4" data-id="{{ song.id }}">
+                        <!-- Song Title Input -->
+                        <div class="col-span-4">
+                            <input id="songTitleTextIpt" type="text" class="block w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-sky-400 focus:border-sky-400" value="{{ song.name }}" onchange="updateSongName({{ song.id }}, this.value)">
+                        </div>
+                        <!-- Artist Name Input -->
+                        <div class="col-span-3">
+                            <input id="artistNameTextIpt" type="text" class="block w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-sky-400 focus:border-sky-400" value="{{ song.artist }}" onchange="updateArtistName({{ song.id }}, this.value)">
+                        </div>
+                        <!-- File Input -->
+                        <div class="col-span-3">
+                            <input id="songFileIpt" type="file" accept=".mp3" onchange="updateSongFile({{ song.id }}, this.files)" class="block w-full text-sm text-gray-400 border border-gray-600 rounded-lg cursor-pointer bg-gray-700 file:bg-gray-600 file:border-0 file:px-3 file:py-2 file:text-gray-200 file:font-semibold hover:file:bg-gray-500 focus:outline-none">
+                        </div>
+                        <!-- Action Buttons -->
+                        <div class="flex items-center justify-end col-span-2 space-x-2">
+                            <button id="addToPlaylistBtn" class="p-2 text-gray-400 rounded-lg hover:bg-gray-700 hover:text-white" title="Add to Playlist" onclick="openAddToPlaylist({{ song.id }})">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                            </button>
+                            <button id="deleteSongBtn" class="p-2 text-gray-400 rounded-lg hover:bg-red-500 hover:text-white" title="Delete Song" onclick="deleteSong({{ song.id }})">
+                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd"></path></svg>
+                            </button>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Playlist Section -->
+<section id="library-playlists" class="playlists relative grid grid-cols-1 gap-8 px-12 py-6 pb-40 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+    {% for playlist in user_playlists %}
+    <article class="playlist flex flex-col rounded-lg bg-white p-4 text-black shadow-md" data-id="{{ playlist.id }}">
+        <div class="mb-4 flex items-center justify-between">
+            <input id="playlistNameTextIpt"
+                   type="text"
+                   class="playlist-name-input mr-2 w-full truncate rounded bg-transparent text-lg font-bold focus:bg-gray-100"
+                   value="{{ playlist.name }}"
+                   onchange="updatePlaylistName({{ playlist.id }}, this.value)">
+            <button class="song-button flex-shrink-0 p-1 hover:text-red-500" title="Delete playlist" onclick="removePlaylist({{ playlist.id }})">
+                 <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd"></path></svg>
+            </button>
+        </div>
+        <ul class="max-h-60 space-y-3 overflow-y-auto">
+            {% for song in playlist.songs %}
+            <article class="song_in_playlist" data-id="{{ song.id }}">
+                <li class="flex items-center justify-between border-t border-gray-200 pt-3">
+                    <div class="truncate">
+                        <span class="song-title block text-sm font-semibold">{{ song.name }}</span>
+                        <span class="song-artist block text-xs text-gray-600">{{ song.artist }}</span>
+                    </div>
+                    <div class="ml-2 flex flex-shrink-0 items-center space-x-1">
+                        <button class="song-button p-1 hover:text-sky-400" title="Add to playlist" onclick="openAddToPlaylist({{ song.id }})">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-6-6h12" />
+                            </svg>
+                        </button>
+                        <button class="song-button p-1 hover:text-red-500" title="Remove from playlist" onclick="removeSongFromPlaylist({{ playlist.id }}, {{ song.id }})">
+                            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd"></path></svg>
+                        </button>
+                    </div>
+                </li>
+            </article>
+            {% endfor %}
+        </ul>
+    </article>
+    {% endfor %}
+</section>
+
+<template id="song-template">
+    <!-- Placeholder for JS to clone when adding a song dynamically -->
+    <!-- Article data-id -->
+    <!-- Song Title Input Placeholder and OnChange -->
+    <!-- Artist Name Input Placeholder and OnChange -->
+    <!-- File Input OnChange-->
+    <!-- Action Buttons -->
+    <!-- OnClick Events -->
+    <article class="song grid items-center grid-cols-12 gap-4 px-6 py-4" data-id="">
+        <!-- Song Title Input -->
+        <div class="col-span-4">
+            <input id="songTitleTextIpt" type="text" class="block w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-sky-400 focus:border-sky-400" value="" onchange="">
+        </div>
+        <!-- Artist Name Input -->
+        <div class="col-span-3">
+            <input id="artistNameTextIpt" type="text" class="block w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-sky-400 focus:border-sky-400" value="" onchange="">
+        </div>
+        <!-- File Input -->
+        <div class="col-span-3">
+            <input id="songFileIpt" type="file" accept=".mp3" onchange="" class="block w-full text-sm text-gray-400 border border-gray-600 rounded-lg cursor-pointer bg-gray-700 file:bg-gray-600 file:border-0 file:px-3 file:py-2 file:text-gray-200 file:font-semibold hover:file:bg-gray-500 focus:outline-none">
+        </div>
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-end col-span-2 space-x-2">
+            <button id="addToPlaylistBtn" class="p-2 text-gray-400 rounded-lg hover:bg-gray-700 hover:text-white" title="Add to Playlist" onclick="">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+            </button>
+            <button id="deleteSongBtn" class="p-2 text-gray-400 rounded-lg hover:bg-red-500 hover:text-white" title="Delete Song" onclick="">
+                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd"></path></svg>
+            </button>
+        </div>
+    </article>
+</template>
+
+<template id="song-in-playlist-template">
+    <article class="song_in_playlist" data-id="">
+        <li class="flex items-center justify-between border-t border-gray-200 pt-3">
+            <div class="truncate">
+                <span class="song-title block text-sm font-semibold"></span>
+                <span class="song-artist block text-xs text-gray-600"></span>
+            </div>
+            <div class="ml-2 flex flex-shrink-0 items-center space-x-1">
+                <button class="addToPlaylistBtn p-1 hover:text-sky-400" title="Add to playlist" onclick="">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-6-6h12" />
+                    </svg>
+                </button>
+                <button class="removeFromPlaylistBtn p-1 hover:text-red-500" title="Remove from playlist" onclick="">
+                    <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd"></path></svg>
+                </button>
+            </div>
+        </li>
+    </article>
+</template>
+
+<template id="playlist-template">
+    <!-- Placeholder for JS to clone when adding a playlist dynamically -->
+    <!-- Article data-id -->
+    <!-- Playlist Name Input Placeholder and OnChange -->
+    <!-- Remove Playlist Button OnClick -->
+    <article class="playlist flex flex-col rounded-lg bg-white p-4 text-black shadow-md" data-id="">
+        <div class="mb-4 flex items-center justify-between">
+            <input type="text"
+                   class="playlist-name-input mr-2 w-full truncate rounded bg-transparent text-lg font-bold focus:bg-gray-100"
+                   value=""
+                   onchange="">
+            <button class="deletePlaylistBtn flex-shrink-0 p-1 hover:text-red-500" title="Delete playlist" onclick="">
+                 <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd"></path></svg>
+            </button>
+        </div>
+        <ul class="max-h-60 space-y-3 overflow-y-auto">
+
+        </ul>
+    </article>
+</template>
+{% endblock %}

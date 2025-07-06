@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+<!-- Playlist Section -->
+<section id="index-playlists" class="playlists relative grid grid-cols-1 gap-8 px-12 py-6 pb-40 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+    {% for playlist in playlists %}
+    <article class="playlist flex flex-col rounded-lg bg-white p-4 text-black shadow-md" data-id="{{ playlist.id }}">
+        <div class="mb-4 flex items-center justify-between">
+            <h3 class="playlistNameH3 truncate text-lg font-bold">{{ playlist.name }}</h3>
+            <button class="deletePlaylistBtn ml-2 flex-shrink-0 p-1  hover:text-sky-400" title="Play entire playlist" onclick="queuePlaylist({{ playlist.id }}, -1)">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-6.518-3.758A1 1 0 007 8.29v7.418a1 1 0 001.234.97l6.518-3.758a1 1 0 000-1.742z" />
+                </svg>
+            </button>
+        </div>
+        <ul class="space-y-3 max-h-60 overflow-y-auto">
+            {% for song in playlist.songs %}
+            <article class="song_in_playlist" data-id="{{ song.id }}">
+                <li class="flex items-center justify-between border-t border-gray-200 pt-3">
+                    <div class="truncate">
+                        <span class="song-title block text-sm font-semibold">{{ song.name }}</span>
+                        <span class="song-artist block text-xs text-gray-600">{{ song.artist }}</span>
+                    </div>
+                    <div class="ml-2 flex flex-shrink-0 items-center space-x-1">
+                        <button class="song-button p-1 hover:text-sky-400" title="Play song" onclick="queuePlaylist({{ playlist.id }}, {{ song.id }})">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-6.518-3.758A1 1 0 007 8.29v7.418a1 1 0 001.234.97l6.518-3.758a1 1 0 000-1.742z" />
+                            </svg>
+                        </button>
+                        <button class="song-button p-1 hover:text-sky-400" title="Add to playlist" onclick="openAddToPlaylist({{ song.id }})">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-6-6h12" />
+                            </svg>
+                        </button>
+                    </div>
+                </li>
+            </article>
+            {% endfor %}
+        </ul>
+    </article>
+    {% endfor %}
+</section>
+
+<template id="playlist-template">
+    <!-- Placeholder for JS to clone when adding a playlist dynamically -->
+    <!-- Article data-id -->
+    <!-- Playlist Name -->
+    <!-- Play Playlist button -->
+    <article class="playlist flex flex-col rounded-lg bg-white p-4 text-black shadow-md" data-id="">
+        <div class="mb-4 flex items-center justify-between">
+            <h3 class="playlistNameH3 truncate text-lg font-bold"></h3>
+            <button class="playPlaylistBtn ml-2 flex-shrink-0 p-1  hover:text-sky-400" title="Play entire playlist" onclick="">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-6.518-3.758A1 1 0 007 8.29v7.418a1 1 0 001.234.97l6.518-3.758a1 1 0 000-1.742z" />
+                </svg>
+            </button>
+        </div>
+        <ul class="space-y-3 max-h-60 overflow-y-auto">
+
+        </ul>
+    </article>
+</template>
+
+<template id="song-in-playlist-template">
+    <article class="song_in_playlist" data-id="">
+        <li class="flex items-center justify-between border-t border-gray-200 pt-3" data-id="">
+            <div class="truncate">
+                <span class="song-title block text-sm font-semibold"></span>
+                <span class="song-artist block text-xs text-gray-600"></span>
+            </div>
+            <div class="ml-2 flex flex-shrink-0 items-center space-x-1">
+                <button class="playSongBtn p-1 hover:text-sky-400" title="Play song" onclick="">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-6.518-3.758A1 1 0 007 8.29v7.418a1 1 0 001.234.97l6.518-3.758a1 1 0 000-1.742z" />
+                    </svg>
+                </button>
+                <button class="addToPlaylistBtn p-1 hover:text-sky-400" title="Add to playlist" onclick="">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-6-6h12" />
+                    </svg>
+                </button>
+            </div>
+        </li>
+    </article>
+</template>
+
+
+<!-- Now Playing Section -->
+<section id="nowplaying" class="fixed bottom-0 left-0 right-0 z-50 mx-auto w-full max-w-3xl rounded-t-xl bg-gray-900/80 p-4 text-white shadow-2xl backdrop-blur-sm">
+
+    <!-- Top row: Song + Playlist info -->
+    <div class="flex justify-between items-start mb-4">
+        <!-- Left: Song + Artist -->
+        <div>
+            <p class="text-xl font-bold text-white" id="song-name">Sample Track</p>
+            <p class="text-sm text-gray-400" id="artist-name">Sample Artist</p>
+        </div>
+
+        <!-- Right: Playlist name -->
+        <div class="text-right">
+            <p class="text-m text-white" id="playlist-name">Sample Playlist</p>
+        </div>
+    </div>
+
+    <!-- Bottom row: Audio controls -->
+    <div class="w-full max-w-2xl mx-auto flex justify-center bg-transparent">
+        <!-- Custom controls -->
+        <div class="flex items-center gap-4 w-full">
+            <!-- Play/Pause Button -->
+            <button id="play-pause" aria-label="Play/Pause" class="text-white hover:text-sky-400 transition p-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <rect x="6" y="4" width="4" height="16" rx="1" ry="1" />
+                  <rect x="14" y="4" width="4" height="16" rx="1" ry="1" />
+                </svg>
+            </button>
+
+            <!-- Progress bar -->
+            <input
+                type="range"
+                id="progress"
+                min="0"
+                max="100"
+                value="0"
+                class="h-1 w-full rounded bg-gray-600 accent-white cursor-pointer"
+                aria-label="Seek"
+            />
+
+            <!-- Current time / duration -->
+            <div class="text-sm w-32 whitespace-nowrap text-right font-mono" id="time-display">0:00 / 0:00</div>
+
+            <!-- Skip Button -->
+            <button onclick="skipSong()" title="Skip"
+                class="text-white hover:text-sky-400 transition p-1 flex items-center justify-center"
+                aria-label="Skip">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V5l12 7-12 7z" />
+                    <line x1="6" y1="19" x2="6" y2="5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+                </svg>
+            </button>
+
+            <!-- Volume Control -->
+            <div class="relative">
+              <!-- Volume Button -->
+              <button id="volume-btn" class="text-white hover:text-sky-400 transition p-1 flex items-center justify-center" aria-label="Volume">
+                <!-- Speaker Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 010 7.07M19.07 4.93a9 9 0 010 14.14" />
+                </svg>
+              </button>
+
+              <!-- Vertical slider -->
+              <div id="volume-slider-wrapper"
+                   class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-gray-800 p-2 rounded shadow-lg hidden flex justify-center items-center h-32 w-10">
+                <input type="range"
+                       id="volume-slider"
+                       min="0"
+                       max="1"
+                       step="0.01"
+                       value="1"
+                       class="volume-slider accent-white cursor-pointer">
+              </div>
+            </div>
+
+            <audio id="audio-player" src="sample.mp3"></audio>
+        </div>
+    </div>
+</section>
+{% endblock %}
