@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, send_from_directory, flash, current_app
+from flask import Blueprint, render_template, send_from_directory, current_app, jsonify
 from flask_login import current_user, login_required
 from backend.models import Playlist, Song
 
@@ -23,7 +23,7 @@ def uploaded_file(filename):
     try:
         return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename)
     except FileNotFoundError:
-        flash('Invalid file name', 'error')
+        return jsonify({'success': False, 'message': 'Not allowed'}), 400
 
 
 @main_bp.route('/library')
