@@ -1,4 +1,4 @@
-# Music Streaming Web Application
+# Musify a Music Streaming Web Application
 
 This web application allows users to upload their music, create playlists, and share them with others. Users can create an account to manage their songs and playlists, or they can listen to music without an account.
 
