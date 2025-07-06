@@ -4,8 +4,9 @@
 
 from backend import create_app
 from backend.extensions import socketio
+from backend.config import ProductionConfig
 
-app = create_app()
+app = create_app(config_class=ProductionConfig)
 
 if __name__ == '__main__':
     # Change allow_unsafe_werkzeug if eventlet is imported and patches the threats in python
